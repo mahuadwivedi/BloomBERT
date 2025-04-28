@@ -1,0 +1,10 @@
+ticker,decision,buy_score,sell_score,feedback,date
+tatamotors.ns,Hold,3,3,Yes,2025-04-22 20:37:05.346489
+yesbank.ns,Hold,6,3,Yes,2025-04-23 18:27:11.202511
+bel.ns,Buy,11,2,Yes,2025-04-23 18:29:20.564514
+nvda,Sell,0,4,No,2025-04-23 18:32:34.991383
+adaniensol.ns,Buy,10,2,Yes,2025-04-23 18:49:08.945157
+bel.ns,Buy,11,2,Yes,2025-04-23 23:25:10.324483
+nvda,Sell,0,4,No,2025-04-23 23:25:23.949867
+adaniensol.ns,Buy,10,2,Yes,2025-04-24 15:21:04.322753
+rpower.ns,Buy,7,1,No,2025-04-24 15:51:09.179671
