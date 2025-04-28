@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Currency Converter</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background-color: #0f172a;
+        color: #f1f5f9;
+        background-image: url("https://images.unsplash.com/photo-1612831455544-a800c74390bf?auto=format&fit=crop&w=1500&q=80");
+        background-size: cover;
+        background-position: center;
+        backdrop-filter: blur(8px);
+      }
+      .container {
+        max-width: 600px;
+        margin: 5% auto;
+        background-color: rgba(15, 23, 42, 0.8);
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+      }
+      h1 {
+        text-align: center;
+        font-weight: 600;
+      }
+      .form-group {
+        margin: 1rem 0;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+      }
+      button {
+        background-color: #10b981;
+        color: white;
+        cursor: pointer;
+        margin-top: 1rem;
+      }
+      #swapBtn {
+        background-color: #334155;
+        color: #f1f5f9;
+        margin-top: 0;
+        margin-bottom: 1rem;
+        width: auto;
+        padding: 0.5rem 1.5rem;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.2rem;
+      }
+      #swapBtn:hover {
+        background-color: #475569;
+      }
+      #result {
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+      canvas {
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>₹ Currency Converter 💰</h1>
+      <form id="converter-form">
+        <div class="form-group">
+          <label for="amount">Amount:</label>
+          <input type="number" id="amount" required />
+        </div>
+
+        <div class="form-group">
+          <label for="from">From Currency:</label>
+          <select id="from"></select>
+        </div>
+
+        <div class="form-group" style="text-align: center">
+          <button type="button" id="swapBtn">⇄ Swap</button>
+        </div>
+
+        <div class="form-group">
+          <label for="to">To Currency:</label>
+          <select id="to"></select>
+        </div>
+
+        <button type="submit">Convert</button>
+      </form>
+
+      <div id="result"></div>
+      <canvas id="historyChart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+      const fromSelect = document.getElementById("from");
+      const toSelect = document.getElementById("to");
+
+      // Load all currencies from Frankfurter API
+      async function loadCurrencies() {
+        const res = await fetch("https://api.frankfurter.app/currencies");
+        const data = await res.json();
+
+        for (const code in data) {
+          const option1 = new Option(`${code} - ${data[code]}`, code);
+          const option2 = new Option(`${code} - ${data[code]}`, code);
+          fromSelect.add(option1.cloneNode(true));
+          toSelect.add(option2.cloneNode(true));
+        }
+
+        // Set default selections
+        fromSelect.value = "USD";
+        toSelect.value = "INR";
+      }
+
+      loadCurrencies();
+
+      // Swap functionality
+      document.getElementById("swapBtn").addEventListener("click", () => {
+        const temp = fromSelect.value;
+        fromSelect.value = toSelect.value;
+        toSelect.value = temp;
+      });
+
+      // Convert form submission
+      document
+        .getElementById("converter-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const amount = parseFloat(document.getElementById("amount").value);
+          const from = fromSelect.value;
+          const to = toSelect.value;
+
+          const response = await fetch(
+            `/convert?amount=${amount}&from=${from}&to=${to}`
+          );
+          const data = await response.json();
+
+          if (data.error) {
+            document.getElementById("result").innerText =
+              "Error: " + data.error;
+            return;
+          }
+
+          document.getElementById(
+            "result"
+          ).innerText = `Converted Amount: ${data.converted.toFixed(2)} ${to}`;
+
+          const ctx = document.getElementById("historyChart").getContext("2d");
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: data.history.dates,
+              datasets: [
+                {
+                  label: `${from} to ${to} Exchange Rate`,
+                  data: data.history.rates,
+                  backgroundColor: "rgba(16, 185, 129, 0.2)",
+                  borderColor: "#10b981",
+                  borderWidth: 2,
+                  tension: 0.3,
+                },
+              ],
+            },
+            options: {
+              plugins: {
+                legend: { labels: { color: "#f1f5f9" } },
+              },
+              scales: {
+                x: { ticks: { color: "#f1f5f9" } },
+                y: { ticks: { color: "#f1f5f9" } },
+              },
+            },
+          });
+        });
+    </script>
+  </body>
+</html>
